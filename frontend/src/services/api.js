@@ -52,8 +52,27 @@ export const authApi = {
     return { ...data, profile: profileData };
   },
 
-  // ... (keep your existing signUp and logout functions) ...
-
+  // SignUp function
+  signUp: async ({ email, password, firstName, lastName }) => {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    
+    // Create the user's profile in the database
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profile')
+        .insert([{ 
+          id: data.user.id, 
+          first_name: firstName, 
+          last_name: lastName,
+          role: 'admin' // Default role
+        }]);
+        
+      if (profileError) console.warn("Could not create profile:", profileError);
+    }
+    
+    return data;
+  },
   // NEW: Function to permanently save profile changes to the database
   updateProfile: async (userId, profileData) => {
     const { data, error } = await supabase

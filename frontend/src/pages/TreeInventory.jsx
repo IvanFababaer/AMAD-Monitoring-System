@@ -166,7 +166,19 @@ const TreeInventory = () => {
 
   const handleEditClick = (tree) => {
     setEditingId(tree.id);
-    const formattedDate = tree.date_planted ? new Date(tree.date_planted).toISOString().split('T')[0] : '';
+    
+    let formattedDate = '';
+    if (tree.date_planted) {
+      try {
+        const d = new Date(tree.date_planted);
+        if (!isNaN(d.getTime())) {
+          formattedDate = d.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        console.warn("Invalid date:", tree.date_planted);
+      }
+    }
+
     setFormData({
       ...tree,
       date_planted: formattedDate,
